@@ -6,11 +6,9 @@ export default function Home() {
   const [symbol, setSymbol] = useState("BTCUSDT");
 
   return (
-    <div>
-      HOME
-
+    <div className="px-4">
       <select
-        className="mt-4 p-2 border rounded-md"
+        className="mt-4 p-2 border rounded-md text-white"
         value={symbol}
         onChange={(e) => setSymbol(e.target.value)}
       >
@@ -20,9 +18,11 @@ export default function Home() {
         <option value="DOGEUSDT">DOGE/USDT</option>
       </select>
 
-      <TradingChart symbol={symbol} />
+      <main className="grid grid-cols-[240px_1fr] gap-16 mt-8">
+        <OrderBookDepthTable symbol={symbol} />
 
-      <OrderBookDepthTable symbol={symbol} />
+        <TradingChart symbol={symbol} />
+      </main>
     </div>
   );
 }

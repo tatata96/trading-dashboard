@@ -15,14 +15,12 @@ const CandlestickChart = ({ chartData }: CandlestickChartProps) => {
   useEffect(() => {
     if (!chartContainerRef.current) return;
 
-    // Prevent unnecessary chart removals
     if (!chartRef.current) {
-      // Create a new chart only if one doesn't exist
       const chart = createChart(chartContainerRef.current, {
         width: chartContainerRef.current.clientWidth,
-        height: 400,
-        layout: { background: { color: "#fff" }, textColor: "#000" },
-        grid: { vertLines: { color: "rgba(70, 130, 180, 0.5)" }, horzLines: { color: "rgba(70, 130, 180, 0.5)" } },
+        height: 480,
+        layout: { background: { color: "#181a1f" }, textColor: "white" },
+        grid: { vertLines: { color: "#2f2e2d" }, horzLines: { color: "#2f2e2d" } },
       });
 
       chartRef.current = chart;
@@ -39,22 +37,26 @@ const CandlestickChart = ({ chartData }: CandlestickChartProps) => {
       seriesRef.current = candlestickSeries;
     }
 
-    // Ensure the chart gets the latest data without re-initializing
     if (seriesRef.current) {
       seriesRef.current.setData(chartData);
     }
 
+    chartRef.current.timeScale().fitContent();
+
     return () => {
-      // Only dispose when the component unmounts
       if (chartRef.current) {
         chartRef.current.remove();
-        // Clear reference
-        chartRef.current = null; 
+        chartRef.current = null;
       }
     };
   }, [chartData]);
 
-  return <div ref={chartContainerRef} className="w-full h-96 border" />;
+  return (
+    <div
+      ref={chartContainerRef}
+      className="w-full border border-[#2f2e2d] rounded-md shadow-md"
+    />
+  );
 };
 
 export default CandlestickChart;

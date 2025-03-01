@@ -1,66 +1,34 @@
 "use client";
 
 import {useOrderBookWebSocket} from "@/hooks/order-book/useOrderBookWebSocket";
-import {DepthTableProps} from "@/types/OrderBook.types";
+import {DepthTableProps, OrderBookEntry} from "@/types/OrderBook.types";
 import {formatPrice} from "@/utils/priceUtils";
 
-export default function OrderBookDepthTable({ symbol }: DepthTableProps) {
-  const { orderBook } = useOrderBookWebSocket(symbol);
+export default function OrderBookDepthTable({symbol}: DepthTableProps) {
+  const {orderBook} = useOrderBookWebSocket(symbol);
+
+  const renderOrderBookEntries = (orders: OrderBookEntry[], textColor: string) => (
+    <div className="grid gap-2 h-[240px]">
+      {orders?.map((order, index) => (
+        <div key={index} className="grid grid-cols-2 hover:bg-gray-800 transition">
+          <span className={`${textColor}`}>{formatPrice(order.price)}</span>
+          <span className="text-right">{parseFloat(order.quantity)}</span>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="w-full p-4 border rounded-lg shadow-md bg-white">
+    <div className="w-full shadow-md bg--background text-white text-xs">
       <h2 className="text-lg font-semibold mb-2">Order Book - {symbol}</h2>
 
-      <div className="grid grid-cols-2 gap-4">
-        {/* ✅ Bids Table */}
-        <div>
-          <h3 className="text-green-600 font-medium mb-2">Bids (Buy Orders)</h3>
-          <table className="w-full border-collapse border border-gray-200">
-            <thead className="bg-green-100">
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Price</th>
-                <th className="border border-gray-300 px-4 py-2">Quantity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orderBook?.bids?.map((bid, index) => (
-                <tr key={index} className="hover:bg-green-50">
-                  <td className="border border-gray-300 px-4 py-2 text-green-700">
-                    {formatPrice(bid.price)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {parseFloat(bid.quantity)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <div className="grid grid-rows-2 gap-4">
+        {/* Bids Section */}
+        {orderBook?.bids && renderOrderBookEntries(orderBook?.bids, "text-green-600")}
 
-        {/* ✅ Asks Table */}
-        <div>
-          <h3 className="text-red-600 font-medium mb-2">Asks (Sell Orders)</h3>
-          <table className="w-full border-collapse border border-gray-200">
-            <thead className="bg-red-100">
-              <tr>
-                <th className="border border-gray-300 px-4 py-2">Price</th>
-                <th className="border border-gray-300 px-4 py-2">Quantity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {orderBook?.asks?.map((ask, index) => (
-                <tr key={index} className="hover:bg-red-50">
-                  <td className="border border-gray-300 px-4 py-2 text-red-700">
-                    {formatPrice(ask.price)}
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {parseFloat(ask.quantity)}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+
+        {/* Asks Section */}
+        {orderBook?.asks && renderOrderBookEntries(orderBook?.asks, "text-red-700")}
       </div>
     </div>
   );

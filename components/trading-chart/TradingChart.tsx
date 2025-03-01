@@ -1,20 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { binanceApi } from "@/api/binanceApi";
-import { INTERVALS } from "@/constants/klineConstants";
-import { BinanceKlineResponse, KlineInterval } from "@/types/Kline.types";
+import {useEffect, useState} from "react";
+import {binanceApi} from "@/api/binanceApi";
+import {INTERVALS} from "@/constants/klineConstants";
+import {BinanceKlineResponse, KlineInterval} from "@/types/Kline.types";
 import CandlestickChart from "./candlestick-chart/CandlestickChart";
-import { CandlestickData, UTCTimestamp } from "lightweight-charts";
+import {CandlestickData, UTCTimestamp} from "lightweight-charts";
 import {useKlineWebSocket} from "@/hooks/kline/useKlineWebSocket";
 interface TradingChartProps {
   symbol: string;
 }
 
-export default function TradingChart({ symbol }: TradingChartProps) {
+export default function TradingChart({symbol}: TradingChartProps) {
   const [selectedInterval, setSelectedInterval] = useState<KlineInterval>("1m");
   const [historicalData, setHistoricalData] = useState<CandlestickData<UTCTimestamp>[]>([]);
-  const { klineEntries } = useKlineWebSocket(symbol, selectedInterval);
+  const {klineEntries} = useKlineWebSocket(symbol, selectedInterval);
 
   // Fetch historical data before WebSocket starts
   useEffect(() => {
@@ -23,7 +23,7 @@ export default function TradingChart({ symbol }: TradingChartProps) {
         const rawData: BinanceKlineResponse[] = await binanceApi.fetchKlineData(symbol, selectedInterval);
 
         const formattedData: CandlestickData<UTCTimestamp>[] = rawData.map((item) => ({
-          time: convertToMiliseconds(item[0]), 
+          time: convertToMiliseconds(item[0]),
           open: parseFloat(item[1]),
           high: parseFloat(item[2]),
           low: parseFloat(item[3]),
@@ -73,28 +73,31 @@ export default function TradingChart({ symbol }: TradingChartProps) {
 
   return (
     <div>
+    <h2 className="text-lg font-semibold mb-2 text-white">Chart - {symbol}</h2>
+
+    <div className="w-full grid grid-rows-2 gap-4">
+      {/* Historical CandlestickChart */}
+      <CandlestickChart chartData={historicalData} />
+
       {/* Interval Selection Buttons */}
-      <div className="flex flex-wrap gap-2 mb-4">
+      <div className="flex flex-wrap gap-16 mt-4">
         {INTERVALS.map((interval) => (
           <button
             key={interval}
             onClick={() => setSelectedInterval(interval as KlineInterval)}
-            className={`px-3 py-1 border rounded ${
-              selectedInterval === interval ? "bg-blue-500 text-white" : "bg-gray-200 hover:bg-gray-300"
-            }`}
+            className={`h-fit py-1 border-none bg-transparent hover:cursor-pointer ${selectedInterval === interval ? "text-white" : "text-gray-500"
+              }`}
           >
             {interval}
           </button>
         ))}
       </div>
-
-      {/* Historical CandlestickChart */}
-      <CandlestickChart chartData={historicalData} />
+    </div>
     </div>
   );
 
   // todo: move to utils
- function convertToMiliseconds(timestamp: number): UTCTimestamp {
+  function convertToMiliseconds(timestamp: number): UTCTimestamp {
     return (timestamp > 10000000000 ? Math.floor(timestamp / 1000) : timestamp) as UTCTimestamp;
   }
 }
