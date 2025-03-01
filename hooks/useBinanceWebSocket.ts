@@ -1,33 +1,27 @@
 "use client";
 
-import {BINANCE_WS_URL} from "@/constants/binanceApiConstanst";
-import {useEffect, useRef} from "react";
+import { BINANCE_WS_URL } from "@/constants/binanceApiConstanst";
+import { useEffect, useRef } from "react";
 
 export function useBinanceWebSocket<T>(streams: string[], callback: (data: T) => void, id: number) {
   const wsRef = useRef<WebSocket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const currentStreamsRef = useRef<string[]>([]);
 
   function connectWebSocket() {
     if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED) {
-      console.log("WebSocket already exists or is closing. Skipping new connection.");
+      console.log("⚠️ WebSocket already exists. Skipping new connection.");
       return;
     }
 
     console.log("🔌 Connecting to Binance WebSocket...");
-    const ws = new WebSocket(BINANCE_WS_URL);
-    wsRef.current = ws;
+    wsRef.current = new WebSocket(BINANCE_WS_URL);
 
-    ws.onopen = () => {
-      console.log("✅ WebSocket Connected:", streams);
-      const subscribeMessage = {
-        method: "SUBSCRIBE",
-        params: streams,
-        id: id
-      };
-      ws.send(JSON.stringify(subscribeMessage));
+    wsRef.current.onopen = () => {
+      console.log("✅ WebSocket Connected");
+      subscribeToStreams(streams);
     };
 
-    ws.onmessage = (event) => {
+    wsRef.current.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data?.result === null) return; 
@@ -37,51 +31,51 @@ export function useBinanceWebSocket<T>(streams: string[], callback: (data: T) =>
       }
     };
 
-    ws.onerror = (error) => {
+    wsRef.current.onerror = (error) => {
       console.error("❌ WebSocket Error:", error);
     };
 
-    ws.onclose = (event) => {
-      console.warn("⚠️ WebSocket Disconnected. Code:", event.code);
-      if (![1000, 1005].includes(event.code)) {
-        console.log("🔄 Reconnecting WebSocket in 5 seconds...");
-        reconnectTimeoutRef.current = setTimeout(connectWebSocket, 5000);
-      }
+    wsRef.current.onclose = (event) => {
+      console.warn(`⚠️ WebSocket Disconnected! Code: ${event.code}, Reason: ${event.reason || "No reason provided"}`);
     };
   }
 
-  console.log("🔗 Subscribing to:", streams);
+  function subscribeToStreams(newStreams: string[]) {
+    if (!wsRef.current || wsRef.current.readyState !== WebSocket.OPEN) return;
+
+    // Only unsubscribe if switching to a different stream
+    if (currentStreamsRef.current.length > 0) {
+      console.log("🚫 Unsubscribing from:", currentStreamsRef.current);
+      wsRef.current.send(JSON.stringify({ method: "UNSUBSCRIBE", params: currentStreamsRef.current, id }));
+    }
+
+    console.log("🔗 Subscribing to:", newStreams);
+    wsRef.current.send(JSON.stringify({ method: "SUBSCRIBE", params: newStreams, id }));
+
+    currentStreamsRef.current = newStreams; 
+  }
+
   useEffect(() => {
     if (!streams.length) return;
-    connectWebSocket();
 
+    if (!wsRef.current) {
+      connectWebSocket();
+    } else {
+      subscribeToStreams(streams);
+    }
+
+    // ✅ Prevent closing WebSocket when switching streams
     return () => {
-      if (wsRef.current) {
-        console.log("🚫 Unsubscribing from:", streams);
-        const unsubscribeMessage = {
-          method: "UNSUBSCRIBE",
-          params: streams,
-          id: Date.now(),
-        };
+      if (!wsRef.current) return; // Don't close WebSocket if it's still needed
 
-        try {
-          if (wsRef.current.readyState === WebSocket.OPEN) {
-            wsRef.current.send(JSON.stringify(unsubscribeMessage));
-          }
-        } catch (error) {
-          console.error("❌ Error sending unsubscribe message:", error);
-        }
-
-        wsRef.current.close();
-        wsRef.current = null;
+      if (currentStreamsRef.current.length > 0) {
+        console.log("🚫 Unsubscribing before switching streams:", currentStreamsRef.current);
+        wsRef.current.send(JSON.stringify({ method: "UNSUBSCRIBE", params: currentStreamsRef.current, id }));
       }
 
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
+      currentStreamsRef.current = [];
     };
-  }, [streams.join(",")]); 
+  }, [streams.join(",")]); // Track stream changes without closing WebSocket
 
   return {};
 }
