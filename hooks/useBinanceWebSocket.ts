@@ -30,8 +30,7 @@ export function useBinanceWebSocket<T>(streams: string[], callback: (data: T) =>
     ws.onmessage = (event) => {
       try {
         const data = JSON.parse(event.data);
-        console.log("📦 WebSocket Message:", event.data);
-        if (data?.result === null) return; // Ignore confirmation messages
+        if (data?.result === null) return; 
         callback(data);
       } catch (error) {
         console.error("❌ WebSocket JSON Parsing Error:", error);
