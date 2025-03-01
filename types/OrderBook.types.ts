@@ -18,3 +18,7 @@ export interface OrderBook {
   asks: OrderBookEntry[];
   bids: OrderBookEntry[];
 }
+
+export interface DepthTableProps {
+  symbol: string;
+}
