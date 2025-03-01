@@ -8,6 +8,16 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --negative-red: #ff8c1a;
+  --positive-green: #94ff1a;
+  --gray: #c7c3bf;
+  --primary-text: #000000;
+  --terminal-text: #94ff1a;
+  --title-text: #1e1d29;
+
+  --default-border-radius: 8px;
+  --large-border-radius: 24px;
 }
 
 @media (prefers-color-scheme: dark) {
