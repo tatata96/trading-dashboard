@@ -1,9 +1,11 @@
 "use client";
 
-import {binanceApi} from "@/api/binanceApi";
-import {INTERVALS} from "@/constants/klineConstants";
-import {BinanceKlineResponse} from "@/types/Kline.types";
 import { useEffect, useState } from "react";
+import { binanceApi } from "@/api/binanceApi";
+import { INTERVALS } from "@/constants/klineConstants";
+import { BinanceKlineResponse } from "@/types/Kline.types";
+import CandlestickChart from "./candlestick-chart/CandlestickChart";
+import { CandlestickData, UTCTimestamp } from "lightweight-charts";
 
 interface TradingChartProps {
   symbol: string;
@@ -11,13 +13,22 @@ interface TradingChartProps {
 
 export default function TradingChart({ symbol }: TradingChartProps) {
   const [selectedInterval, setSelectedInterval] = useState("1m");
-  const [historicalData, setHistoricalData] = useState<BinanceKlineResponse[]>([]);
+  const [historicalData, setHistoricalData] = useState<CandlestickData<UTCTimestamp>[]>([]);
 
   useEffect(() => {
     async function fetchHistoricalData() {
       try {
-        const data = await binanceApi.fetchKlineData(symbol, selectedInterval);
-        setHistoricalData(data);
+        const rawData: BinanceKlineResponse[] = await binanceApi.fetchKlineData(symbol, selectedInterval);
+
+        const formattedData: CandlestickData<UTCTimestamp>[] = rawData.map((item) => ({
+          time: (item[0] / 1000) as UTCTimestamp, // Convert ms → seconds
+          open: parseFloat(item[1]),
+          high: parseFloat(item[2]),
+          low: parseFloat(item[3]),
+          close: parseFloat(item[4]),
+        }));
+
+        setHistoricalData(formattedData);
       } catch (error) {
         console.error("Error fetching historical data:", error);
       }
@@ -25,6 +36,8 @@ export default function TradingChart({ symbol }: TradingChartProps) {
 
     fetchHistoricalData();
   }, [symbol, selectedInterval]);
+
+  console.log(historicalData);
 
   return (
     <div>
@@ -43,17 +56,7 @@ export default function TradingChart({ symbol }: TradingChartProps) {
         ))}
       </div>
 
-      {/* Display Historical Data */}
-      <div className="p-4 border rounded">
-        <h2 className="text-lg font-bold">Trading Data: {symbol} ({selectedInterval})</h2>
-        <ul>
-          {historicalData.map((item, index) => (
-            <li key={index}>
-              Time: {new Date(item[0]).toLocaleTimeString()}, Open: {item[1]}, High: {item[2]}, Low: {item[3]}, Close: {item[4]}
-            </li>
-          ))}
-        </ul>
-      </div>
+      <CandlestickChart chartData={historicalData} />
     </div>
   );
 }
