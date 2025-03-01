@@ -1,5 +1,6 @@
 import {BINANCE_API_URL} from "@/constants/binanceApiConstanst";
-import {BinanceKlineResponse, klineMaxLimit} from "@/types/Kline.types";
+import {klineMaxLimit} from "@/constants/klineConstants";
+import {BinanceKlineResponse} from "@/types/Kline.types";
 
 export const binanceApi = {
   async fetchKlineData(symbol: string, interval: string, limit: number = klineMaxLimit): Promise<BinanceKlineResponse[]> {

@@ -61,4 +61,3 @@ export type KlineInterval =
     11?: string; // Ignore (optional)
   }
 
-export const klineMaxLimit = 50;

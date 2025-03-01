@@ -1,12 +1,10 @@
 import OrderBookDepthTable from "@/components/order-book/OrderBook";
-import {useKlineWebSocket} from "@/hooks/kline/useKlineWebSocket";
+import TradingChart from "@/components/trading-chart/TradingChart";
 import {useState} from "react";
 
 export default function Home() {
-  const [symbol,setSymbol] = useState("BTCUSDT");
-  const { klineEntries } = useKlineWebSocket(symbol, "1m");
+  const [symbol, setSymbol] = useState("BTCUSDT");
 
-  console.log(klineEntries);
   return (
     <div>
       HOME
@@ -22,7 +20,9 @@ export default function Home() {
         <option value="DOGEUSDT">DOGE/USDT</option>
       </select>
 
-    <OrderBookDepthTable symbol={symbol} />
+      <TradingChart symbol={symbol} />
+
+      <OrderBookDepthTable symbol={symbol} />
     </div>
   );
 }
