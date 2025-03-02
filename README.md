@@ -1,40 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Trading Dashboard
 
-## Getting Started
+A real-time **trading dashboard** that displays **order book depth** and **candlestick charts** using Binance WebSocket API.
 
-First, run the development server:
+---
+
+## Setup & Run Instructions
 
 ```bash
+git clone https://github.com/your-username/trading-dashboard.git
+cd trading-dashboard
+
+npm install
+# or
+yarn install
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+<br>
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Approach
+### WebSocket-Based Real-Time Updates
+- The order book and candlestick chart **fetch live data** using the **Binance WebSocket API**.
+- Custom hooks (`useBinanceWebSocket`, `useKlineWebSocket`, `useOrderBookWebSocket`) **efficiently manage WebSocket connections**, ensuring that:
+  - Each component **subscribes only to relevant streams**.
+  - The app **avoids unnecessary re-renders** by handling data updates properly.
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+### Code & Folder Structure
+- Tried to **keep the codebase clean & modular** by separating concerns:
+  - **Hooks** (`/hooks`) → Manages WebSocket logic independently.
+  - **Components** (`/components`) → Encapsulates UI elements.
+  - **Constants** (`/constants`) → Stores WebSocket stream names & IDs.
+  - **API Calls** (`/api`) → Manages REST API requests for historical data.
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+<br>
 
-## Learn More
+##  External Libraries Used
 
-To learn more about Next.js, take a look at the following resources:
+### **🔹 Dependencies**
+| Library | Version | Purpose |
+|---------|---------|---------|
+| **next** | 15.2.0 | React framework for SSR & SSG |
+| **lightweight-charts** | ^5.0.3 | High-performance candlestick charting |
+| **eslint** | ^9 | Linting for code quality |
+| **eslint-config-next** | 15.2.0 | ESLint rules for Next.js |
+| **@eslint/eslintrc** | ^3 | ESLint configuration support |
+| **@types/node** | ^20 | TypeScript definitions for Node.js |
+| **@types/react** | ^19 | TypeScript definitions for React |
+| **@types/react-dom** | ^19 | TypeScript definitions for React DOM |
+| **typescript** | ^5 | TypeScript support |
+| **tailwindcss** | ^4 | Utility-first CSS framework for styling |
+| **@tailwindcss/postcss** | ^4 | PostCSS plugin for TailwindCSS |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+<br>
 
-## Deploy on Vercel
+## Future Improvements
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### 1. Improve WebSocket Resilience, and  WebSocket reconnect logic
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+#### 2. User Customization: Allow selecting different chart themes and general color theme
+
+#### 3.Optimize Order Book Rendering: Reduce DOM updates for better performance
+
+#### 4. Implement Global Styles & Colors (Low Priority for Small Project)
+
+#### 5. Use Context API for Selected Symbol
