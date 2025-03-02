@@ -7,7 +7,7 @@ A real-time **trading dashboard** that displays **order book depth** and **candl
 ## Setup & Run Instructions
 
 ```bash
-git clone https://github.com/your-username/trading-dashboard.git
+git clone https://github.com/tatata96/trading-dashboard.git
 cd trading-dashboard
 
 npm install
