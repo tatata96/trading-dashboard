@@ -5,7 +5,7 @@ import {DepthTableProps, OrderBookEntry} from "@/types/OrderBook.types";
 import {formatPrice} from "@/utils/priceUtils";
 
 export default function OrderBookDepthTable({symbol}: DepthTableProps) {
-  const {orderBook} = useOrderBookWebSocket(symbol);
+  const {orderBook, isLoading, error} = useOrderBookWebSocket(symbol);
 
   const renderOrderBookEntries = (orders: OrderBookEntry[], textColor: string) => (
     <div className="grid gap-2 h-[240px]">
@@ -19,17 +19,30 @@ export default function OrderBookDepthTable({symbol}: DepthTableProps) {
   );
 
   return (
-    <div className="w-full shadow-md bg--background text-white text-xs">
+    <div className="w-full shadow-md bg--background text-white">
       <h2 className="text-lg font-semibold mb-2">Order Book - {symbol}</h2>
 
-      <div className="grid grid-rows-2 gap-4">
-        {/* Bids Section */}
-        {orderBook?.bids && renderOrderBookEntries(orderBook?.bids, "text-green-600")}
+      {isLoading && (
+        <div className="flex items-center justify-center text-center py-4 h-[480px] text-gray-400">
+          <span className="animate-pulse">Loading order book data...</span>
+        </div>
+      )}
+
+      {error && (
+        <div className="flex items-center justify-center text-center py-4 h-[480px] text-[#ef5350]">
+          {error}
+        </div>
+      )}
+
+      {!error && !isLoading &&
+        <div className="grid grid-rows-2 gap-4 text-xs">
+          {/* Bids Section */}
+          {orderBook?.bids && renderOrderBookEntries(orderBook?.bids, "text-[#26a69a]")}
 
 
-        {/* Asks Section */}
-        {orderBook?.asks && renderOrderBookEntries(orderBook?.asks, "text-red-700")}
-      </div>
+          {/* Asks Section */}
+          {orderBook?.asks && renderOrderBookEntries(orderBook?.asks, "text-[#ef5350]")}
+        </div>}
     </div>
   );
 }

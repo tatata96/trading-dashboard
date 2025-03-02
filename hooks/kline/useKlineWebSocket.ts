@@ -8,7 +8,7 @@ import {klineStreamline} from "@/constants/binanceApiConstanst";
 export function useKlineWebSocket(selectedPair: string, interval: KlineInterval = "1m") {
   const [klineEntries, setKlineEntries] = useState<KlineEntry[]>([]);
 
-  useBinanceWebSocket<KlineUpdateMessage>(
+  const {isLoading, error} = useBinanceWebSocket<KlineUpdateMessage>(
     [`${selectedPair.toLowerCase()}@${klineStreamline.name}_${interval}`],
     (data) => {
       if (!data || !data.k) {
@@ -16,15 +16,15 @@ export function useKlineWebSocket(selectedPair: string, interval: KlineInterval 
         return;
       }
 
-      setKlineEntries((prev) => {
+       setKlineEntries((prev) => {
         const newCandle: KlineEntry = {
-          time: Math.floor(data.k.t / 1000), 
+          time: Math.floor(data.k.t / 1000),
           open: data.k.o,
           high: data.k.h,
           low: data.k.l,
           close: data.k.c,
           volume: data.k.v,
-          isClosed: data.k.x, 
+          isClosed: data.k.x,
         };
 
         if (prev.length === 0) return [newCandle];
@@ -37,7 +37,7 @@ export function useKlineWebSocket(selectedPair: string, interval: KlineInterval 
             return [...prev.slice(0, -1), newCandle];
           }
           // Ignore update if last candle is closed
-          return prev; 
+          return prev;
         } else {
           // Add new candle, keeping only the last 50
           return [...prev, newCandle].slice(-50);
@@ -45,8 +45,8 @@ export function useKlineWebSocket(selectedPair: string, interval: KlineInterval 
       });
 
     },
-    klineStreamline.id 
-   );
+    klineStreamline.id
+  );
 
-  return {klineEntries};
+  return {klineEntries, isLoading, error};
 }

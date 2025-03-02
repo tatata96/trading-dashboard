@@ -1,14 +1,13 @@
-import {DepthUpdateMessage, OrderBook} from "@/types/OrderBook.types";
-import {useState} from "react";
-import {useBinanceWebSocket} from "../useBinanceWebSocket";
-import {depthStreamline} from "@/constants/binanceApiConstanst";
+import { DepthUpdateMessage, OrderBook } from "@/types/OrderBook.types";
+import { useState } from "react";
+import { useBinanceWebSocket } from "../useBinanceWebSocket";
+import { depthStreamline } from "@/constants/binanceApiConstanst";
 
 export function useOrderBookWebSocket(symbol: string) {
   const [orderBook, setOrderBook] = useState<OrderBook | null>(null);
 
-  useBinanceWebSocket<DepthUpdateMessage>(
-    // todo: add this to utils
-    [`${symbol.toLowerCase()}@${depthStreamline.name}`], 
+  const { isLoading, error } = useBinanceWebSocket<DepthUpdateMessage>(
+    [`${symbol.toLowerCase()}@${depthStreamline.name}`],
     (data) => {
       if (!data || !data.a || !data.b) {
         console.warn("Received incomplete order book data", data);
@@ -25,9 +24,9 @@ export function useOrderBookWebSocket(symbol: string) {
           quantity,
         })),
       });
-    }, 
+    },
     depthStreamline.id
   );
 
-  return { orderBook };
+  return { orderBook, isLoading, error };
 }

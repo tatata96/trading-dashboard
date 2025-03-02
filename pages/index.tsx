@@ -4,21 +4,28 @@ import {useState} from "react";
 
 export default function Home() {
   const [symbol, setSymbol] = useState("BTCUSDT");
-
+  const tradingPairs = [
+    {symbol: "BTCUSDT", title: "BTC/USDT"},
+    {symbol: "ETHUSDT", title: "ETH/USDT"},
+    {symbol: "SOLUSDT", title: "SOL/USDT"},
+    {symbol: "DOGEUSDT", title: "DOGE/USDT"},
+    {symbol: "XRPUSDT", title: "XRP/USDT"},
+  ];
   return (
     <div className="px-4">
       <select
-        className="mt-4 p-2 border rounded-md text-white"
+        className="w-full mt-4 p-2 border rounded-md text-white bg-gray-800"
         value={symbol}
         onChange={(e) => setSymbol(e.target.value)}
       >
-        <option value="BTCUSDT">BTC/USDT</option>
-        <option value="ETHUSDT">ETH/USDT</option>
-        <option value="SOLUSDT">SOL/USDT</option>
-        <option value="DOGEUSDT">DOGE/USDT</option>
+        {tradingPairs.map(({symbol, title}) => (
+          <option key={symbol} value={symbol}>
+            {title}
+          </option>
+        ))}
       </select>
 
-      <main className="grid grid-cols-[240px_1fr] gap-16 mt-8">
+      <main className="grid grid-cols-1 md:grid-cols-[240px_1fr] gap-16 mt-8">
         <OrderBookDepthTable symbol={symbol} />
 
         <TradingChart symbol={symbol} />
